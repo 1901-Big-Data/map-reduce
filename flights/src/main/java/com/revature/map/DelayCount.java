@@ -9,8 +9,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+
 public class DelayCount extends Mapper<LongWritable, Text, Text, IntWritable>{
+	public enum BAD_INPUT {
+		NO_DELAY_FOUND,
+		NOT_A_NUMBER
+	};
 	static volatile private ArrayList<String> headers = new ArrayList<String>();
+	// delays must be in the order of occurracne of the csv
 	static volatile private String[] delays = {"CarrierDelay","WeatherDelay","NASDelay","SecurityDelay","LateAircraftDelay"};
 	
 	{
@@ -35,12 +41,19 @@ public class DelayCount extends Mapper<LongWritable, Text, Text, IntWritable>{
 		String[] data = line.split(",");
 		for (String delay: delays) {
 			try {				
-				int time = Integer.parseInt(data[headers.indexOf(delay)]);
+				int delayLocationInCSV = headers.indexOf(delay);
+				
+				if (delayLocationInCSV >= data.length) {
+					//context.getCounter(BAD_INPUT.NO_DELAY_FOUND).increment(1L);
+					return;
+				}
+				
+				int time = Integer.parseInt(data[delayLocationInCSV]);
 				if (time > 0) {
 					context.write(new Text(delay), new IntWritable(time));
 				}
 			} catch (NumberFormatException e) {
-				context.getCounter("debug", "bad input").increment(1L);
+				//context.getCounter(BAD_INPUT.NOT_A_NUMBER).increment(1L);
 			}
 		}
 	}

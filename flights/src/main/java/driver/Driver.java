@@ -5,11 +5,14 @@ import java.io.IOException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counters;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import com.revature.map.DelayCount;
+import com.revature.map.DelayCount.BAD_INPUT;
 
 public class Driver {
 	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
@@ -89,6 +92,12 @@ public class Driver {
 		 * If it finishes successfully, return 0. If not, return 1.
 		 */
 		boolean success = job.waitForCompletion(true);
+		
+//		Counters cn = job.getCounters();
+//		
+//		// Find the specific counters that you want to print
+//		Counter c1=cn.findCounter(BAD_INPUT.NO_DELAY_FOUND);
+//		System.out.println(c1.getDisplayName()+":"+c1.getValue());
 		System.exit(success ? 0 : 1);
 
 	}
